@@ -8,6 +8,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     GitHub({
+      // GitHub now returns an `iss` parameter in the OAuth callback; without
+      // an explicit issuer Auth.js fails closed with
+      // "unexpected \"iss\" (issuer) response parameter value".
+      // https://github.com/nextauthjs/next-auth/issues/13409
+      issuer: "https://github.com/login/oauth",
       // GitHub accounts with a private email return `email: null` in the
       // profile, which makes PrismaAdapter fail to create/sign in the user
       // (User.email is required). Fetch the primary verified email instead.
